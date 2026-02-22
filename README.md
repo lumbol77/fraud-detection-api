@@ -119,6 +119,12 @@ Response:
 ```
 
 ---
+## Model Performance
+
+- Accuracy: 0.9991
+- Precision: 0.92
+- Recall: 0.81
+- F1 Score: 0.86
 
 ## Features
 
