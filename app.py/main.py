@@ -3,7 +3,7 @@ import joblib
 import numpy as np
 from pydantic import BaseModel
 #load train model
-model=joblib.load('model/fraud_model.pkl')
+model=joblib.load('model/model.pkl')
 app=FastAPI(title='Fraud Detection API')
 #Define request body
 class Transaction (BaseModel):
