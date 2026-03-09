@@ -47,6 +47,7 @@ def home():
     return {"message": "Fraud Detection API is running"}
 
 @app.post("/predict")
+
 def predict(transaction: Transaction):
     logging.info("Prediction request received")
 
@@ -59,3 +60,22 @@ def predict(transaction: Transaction):
         "prediction": int(prediction[0]),
         "result": "Fraud" if prediction[0] == 1 else "Not Fraud"
     }
+    
+#     @app.post("/predict")
+# def predict(transaction: Transaction):
+#     try:
+#         logging.info("Prediction request received")
+
+#         data = np.array(transaction.features).reshape(1, -1)
+#         prediction = model.predict(data)
+
+#         logging.info(f"Prediction result: {prediction[0]}")
+
+#         return {
+#             "prediction": int(prediction[0]),
+#             "result": "fraud" if prediction[0] == 1 else "not fraud"
+#         }
+
+#     except Exception as e:
+#         logging.error(f"Error during prediction: {str(e)}")
+#         return {"error": str(e)}
