@@ -1,151 +1,98 @@
-# Fraud Detection API
+Fraud Detection ML API (Production-Ready)
 
-A Machine Learning API for detecting fraudulent credit card transactions.
+A cloud-deployed Machine Learning API that detects fraudulent credit card transactions in real-time using a trained classification model.
 
-This project trains a classification model using historical transaction data and exposes it via a FastAPI REST API for real-time fraud prediction.
+This project demonstrates production-level ML model serving, REST API design, and cloud deployment practices used in fintech systems.
 
----
+ Live API Documentation
 
-## Tech Stack
+ https://fraud-api-t9wy.onrender.com/docs
 
-- Python
-- FastAPI
-- Scikit-learn
-- Pandas
-- NumPy
-- Uvicorn
+Interactive Swagger UI for testing endpoints directly from the browser.
 
----
+Key Features
 
-## Project Structure
+Real-time fraud prediction
+Machine Learning model integration
+RESTful API built with FastAPI
+Health monitoring endpoint
+Production-ready error handling
+Cloud deployment on Render
+Clean modular project architecture
 
-```
+Tech Stack
+
+• Python
+• FastAPI
+• Scikit-learn
+• Pandas & NumPy
+• Uvicorn
+• Render (Cloud Hosting)
+
+Project Structure
 fraud-detection-api/
 │
 ├── app/
-│   └── main.py            # FastAPI application
+│   └── main.py              # FastAPI application & endpoints
 │
 ├── model/
-│   └── model.pkl          # Trained ML model
+│   └── fraud_model.pkl      # Trained ML model
 │
-├── train.py               # Model training script
-├── requirements.txt       # Dependencies
+├── train.py                 # Model training pipeline
+├── requirements.txt         # Project dependencies
 ├── README.md
-├── .gitignore
-```
+└── .gitignore
 
----
+API Endpoints
+Health Check
+GET /
+Fraud Prediction
+POST /predict
+Example Request
+{
+  "features": [0.12, -1.45, ...]
+}
+Example Response
+{
+  "prediction": 1,
+  "result": "fraud"
+}
 
-## ⚙️ Installation
+Model Performance
+Metric	Score:
+Accuracy	99.91%
+Precision	92%
+Recall	81%
+F1 Score	86%
 
-Clone the repository:
-
-```bash
+Local Development Setup
+Clone Repository
 git clone https://github.com/lumbol77/fraud-detection-api.git
 cd fraud-detection-api
-```
-
-Create virtual environment (recommended):
-
-```bash
+Create Virtual Environment
 python -m venv venv
 venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
+Install Dependencies
 pip install -r requirements.txt
-```
-
----
-
-## Train the Model
-
-If you want to retrain:
-
-```bash
-python train.py
-```
-
-This will generate `model/model.pkl`.
-
----
-
-## Run the API
-
-```bash
+Run API Server
 uvicorn app.main:app --reload
-```
 
-API will be available at:
+Access locally at:
 
-```
-http://127.0.0.1:8000
-```
-
-Interactive documentation:
-
-```
 http://127.0.0.1:8000/docs
-```
 
----
+Future Improvements
 
-## Example Prediction Request
+• Docker containerization
+• CI/CD pipeline enhancements
+• API authentication & rate limiting
+• Model performance monitoring
+• AWS production deployment
 
-POST request to:
+ Author
+Lumbol Tityem(Lawrence)
 
-```
-/predict
-```
+Machine Learning & Backend Engineer
+📧 lumbolt@gmail.com
 
-Example JSON:
-
-```json
-{
-  "feature1": 0.12,
-  "feature2": -1.45,
-  ...
-}
-```
-
-Response:
-
-```json
-{
-  "prediction": "Fraud"
-}
-```
-
----
-## Model Performance
-
-- Accuracy: 0.9991
-- Precision: 0.92
-- Recall: 0.81
-- F1 Score: 0.86
-
-## Features
-
-- Machine Learning classification model
-- REST API with FastAPI
-- Interactive Swagger UI
-- Clean production-style structure
-- Dataset excluded from repository
-
----
-
-## Future Improvements
-
-- Docker containerization
-- Model performance monitoring
-- Deployment to Render / Railway / AWS
-- Authentication for API access
-
----
-
-##  Author
-
-Lumbo  
-Aspiring Machine Learning Engineer
+🔗 LinkedIn: https://www.linkedin.com/in/lumbol-tityem-zuzul-117731213
