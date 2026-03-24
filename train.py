@@ -1,72 +1,52 @@
 import pandas as pd
 import os
 import joblib
-
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import StandardScaler
 
-# =========================
 # 1. Load Dataset
-# =========================
-data = pd.read_csv("data/creditcard.csv")
+data = pd.read_csv("data/creditcard.csv") 
 
-# ========================= 
-# 2. Split Features & Target
-# =========================
-X = data.drop("Class", axis=1)
+# 2. Select specific features for the Digital Wallet API
+features_for_wallet = ["V1", "V2", "V3", "Amount"] 
+X = data[features_for_wallet]
 y = data["Class"]
 
-# =========================
-# 3. Train-Test Split
-# Stratify keeps fraud ratio balanced
-# =========================
+# 3. Train-Test Split (Stratify keeps fraud ratio balanced)
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-# =========================
-# 4. Build Model
-# class_weight handles imbalance
-# =========================
+
+# 4. Scaling (The "Translator")
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 5. Build & Train Model (Using Scaled Data)
 model = RandomForestClassifier(
-    n_estimators=100,
-    class_weight="balanced",
+    n_estimators=50, 
+    max_depth=10,            
+    min_samples_leaf=5,       
+    class_weight="balanced", 
     random_state=42
 )
-# =========================
-# 5. Train Model
-# =========================
-model.fit(X_train, y_train)
+model.fit(X_train_scaled, y_train)
 
-# =========================
-# 6. Evaluate Model
-# =========================
-y_pred = model.predict(X_test)
-print("\nModel Evaluation:\n")
-print(classification_report(y_test, y_pred))
-y_pred = model.predict(X_test)
+# 6. Evaluate Model (Using Scaled Test Data)
+y_pred = model.predict(X_test_scaled)
 
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred)
-recall = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+print("\nModel Performance Metrics:")
+print(f"Accuracy:  {accuracy_score(y_test, y_pred):.4f}")
+print(f"Precision: {precision_score(y_test, y_pred):.4f}")
+print(f"Recall:    {recall_score(y_test, y_pred):.4f}")
+print(f"F1 Score:  {f1_score(y_test, y_pred):.4f}")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-print("Model Performance Metrics:")
-print(f"Accuracy: {accuracy:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"Recall: {recall:.4f}")
-print(f"F1 Score: {f1:.4f}")
-
-# =========================
-# 7. Save Model
-# =========================
+# 7. Save BOTH artifacts for the Fraud API
 os.makedirs("model", exist_ok=True)
 joblib.dump(model, "model/fraud_model.pkl")
+joblib.dump(scaler, "model/scaler.pkl") 
 
-print("\nModel saved successfully in model/fraud_model.pkl")
-
+print("\nSuccess: Model and Scaler saved in model/ folder.")
