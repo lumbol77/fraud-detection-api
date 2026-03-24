@@ -1,62 +1,45 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 import joblib
 import numpy as np
-from pydantic import BaseModel, Field # Added Field for validation
-import logging
 import os
 
-# 1. Keep your existing Logging & Path logic
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+app = FastAPI(title="Fraud Detection ML API")
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-model_path = os.path.join(BASE_DIR, "model", "fraud_model.pkl")
+# 1. Load the Model and the Scaler
+MODEL_PATH = "model/fraud_model.pkl"
+SCALER_PATH = "model/scaler.pkl"
 
-try:
-    model = joblib.load(model_path)
-    logging.info("Model loaded successfully")
-except Exception as e:
-    logging.error(f"Could not load model: {e}")
-    model = None
-
-app = FastAPI(title="Fraud Detection API")
-
-# 2. IMPROVED: Named fields instead of just "list"
-# This prevents the 500 errors you were seeing.
-class Transaction(BaseModel):
-    amount: float
-    sender_balance: float
-    receiver_balance: float
-    hour_of_day: int
-    is_international: int # 1 for True, 0 for False
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
 
 @app.get("/")
-def home():
-    return {"message": "Fraud Detection API is running"}
+def read_root():
+    return {"message": "Fraud Detection API is Live and Scaled"}
 
 @app.post("/predict")
-def predict(transaction: Transaction):
-    if model is None:
-        raise HTTPException(status_code=503, detail="Model not loaded on server")
+def predict(data: dict):
+    try:
+        # 2. Extract the 5 features in the EXACT same order as train.py
+        # Wallet sends 'transaction_hour', but our model was trained on 'Time'
+        features = np.array([[
+            data.get("v1", 0),
+            data.get("v2", 0),
+            data.get("v3", 0),
+            data.get("amount", 0),
+            data.get("transaction_hour", 0) 
+        ]])
 
-    logging.info("Prediction request received")
+        # 3. Scale the input (Crucial!)
+        scaled_features = scaler.transform(features)
 
-    # 3. Convert named fields into the array the model expects
-    # This ensures the order is ALWAYS correct
-    input_data = np.array([[
-        transaction.amount,
-        transaction.sender_balance,
-        transaction.receiver_balance,
-        transaction.hour_of_day,
-        transaction.is_international
-    ]])
+        # 4. Make Prediction
+        prediction = model.predict(scaled_features)[0]
+        # Get probability for the "Confidence" score in your logs
+        probability = model.predict_proba(scaled_features)[0][1]
 
-    prediction = model.predict(input_data)
-    logging.info(f"Prediction result: {prediction[0]}")
-
-    return {
-        "prediction": int(prediction[0]),
-        "result": "Fraud" if prediction[0] == 1 else "Not Fraud"
-    }
+        return {
+            "is_fraud": bool(prediction),
+            "confidence": round(float(probability), 4)
+        }
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
